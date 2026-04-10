@@ -1,0 +1,19 @@
+name: UDP/HTTP/HTTPS 压测（纯 Node）
+
+on:
+  workflow_dispatch:
+
+jobs:
+  flood-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install Node (默认已装)
+        run: node -v   # 可选，确保 Node≥14
+
+      # 只要阈值不满足，这一步会返回非 0，GitHub 自动标记为 failed
+      - name: Run flood test (quiet)
+        run: |
+          node cc-mod.js -i search.zhian.org -p 80 -P https -R 12000 -t 10800 --min-sent 50000 --max-fail 0 --quiet
