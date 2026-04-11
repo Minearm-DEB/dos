@@ -17,3 +17,4 @@ jobs:
       - name: Run flood test (quiet)
         run: |
           node cc-mod.js https://blog.aznb.top cc.txt 3600 4 GET
+          node cc-mod.js https://blog.aznb.top cc.txt 3600 4 GET
