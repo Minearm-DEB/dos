@@ -1,18 +1,25 @@
-name: UDP/HTTP/HTTPS 压测（纯 Node）
-on: workflow_dispatch:
-  inputs:
-    target_url:
-      description: '目标URL'
-      required: true
-      default: 'https://blog.aznb.top'
+name: wow
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_url:
+        description: '目标URL'
+        required: true
+        default: 'https://blog.aznb.top'
+
 jobs:
   flood-test:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
-      - name: Install Node
-        run: node -v
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
       - name: Run flood test
         run: |
           node cc-mod.js "${{ github.event.inputs.target_url }}" cc.txt 3600 4 GET
