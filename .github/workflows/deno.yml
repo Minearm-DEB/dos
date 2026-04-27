@@ -22,4 +22,4 @@ jobs:
 
       - name: Run flood test
         run: |
-          node cc-mod.js ${{ github.event.inputs.target_url }} cc.txt 20000 12 10 5 GET --waf --random-speed --mode full
+          node cc-mod.js ${{ github.event.inputs.target_url }} 20000 12 10 5 GET --waf --random-speed --mode full
