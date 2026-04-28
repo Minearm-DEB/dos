@@ -24,4 +24,4 @@ jobs:
         run: |
          # node cc-mod.js ${{ github.event.inputs.target_url }} cc.txt 20000 12 1 1 GET --waf --mode full
          pip install requests pysocks
-         python3 cc.py -url http://www.naizha.top -f cc.txt -v 4 -s 21000
+         python3 cc.py -url ${{ github.event.inputs.target_url }} -f cc.txt -v 4 -s 21000
